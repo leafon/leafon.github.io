@@ -18,7 +18,7 @@ chrome/Opera
 
 
 
-Reident
+Trident
 Gecko
 We"><meta name="keywords" content="Blog"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"><script src="/js/jquery.js"></script><meta name="generator" content="Hexo 5.0.0"></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">Leaf</a></h3><div class="description"><p>一片叶子.<br />Leaf On The Road.</p></div></div></div><ul class="social-links"><li><a href="https://github.com/leafon/leafon.github.io"><i class="fa fa-github"></i></a></li><li><a href="516037580@qq.com"><i class="fa fa-envelope"></i></a></li><li><a target="_blank" rel="noopener" href="http://sighttp.qq.com/authd?IDKEY="><i class="fa fa-qq"></i></a></li><li><a href="https://github.com/leafon/leafon.github.io"><i class="fa fa-mortar-board"></i></a></li></ul><div class="footer"><div class="p"> <span>© 2020 </span><i class="fa fa-star"></i><span> Leaf</span></div><div class="by_farbox"><span>Powered by </span><a href="https://hexo.io/zh-cn/" target="_blank">Hexo </a><span> & </span><a href="https://github.com/mrcore/hexo-theme-Anatole-Core" target="_blank">Anatole-Core.  </a><a href="http://www.beian.miit.gov.cn/" target="_blank">&nbsp;</a></div></div></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a href="/">首页</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li><li><a href="/about">关于</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)"> </a></li></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post-page"><div class="post animated fadeInDown"><div class="post-title"><h3><a>浏览器工作原理</a></h3></div><div class="post-content"><ul>
 <li>发展史<ul>
@@ -41,7 +41,7 @@ We"><meta name="keywords" content="Blog"><meta content="width=device-width, init
 </tr>
 </thead>
 <tbody><tr>
-<td align="center">Reident</td>
+<td align="center">Trident</td>
 <td align="center">Gecko</td>
 <td align="center">Webkit</td>
 <td align="center">Blink</td>
@@ -56,7 +56,24 @@ We"><meta name="keywords" content="Blog"><meta content="width=device-width, init
 </blockquote>
 <p>浏览器进程 – 除标签页外的用户界面【地址栏／书签／前进／后退 ，与其他进程的协调工作】<br>网络进程 – 网络请求<br>渲染器进程 – 控制tab标签页的所有内容【每个实例创建一个渲染器进程】<br>GPU进程 – 整个浏览器页面的渲染<br>插件进程 – 控制网站使用的所有插件</p>
 <ul>
-<li>UI线程捕捉输入内容 – 网络线程 – 【SafeBrowsing检查站点】<ul>
+<li><p>浏览器是多线程的，三个常用线程</p>
+<ul>
+<li>javascript 引擎线程<ul>
+<li>事件驱动单线程</li>
+</ul>
+</li>
+<li>GUI 渲染线程<ul>
+<li>GUI 与 js 互斥，当js执行时GUI会停止，保存在队列中，即JS阻塞页面加载</li>
+</ul>
+</li>
+<li>事件出发线程<ul>
+<li>添加到队列，等待js线程处理</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>UI线程捕捉输入内容 – 网络线程 – 【SafeBrowsing检查站点】</p>
+<ul>
 <li>Browser Process UI线程捕捉输入内容</li>
 <li>网络线程<br>—  SafeBrowsing检查站点，谷歌站点安全系统</li>
 <li>通知UI进程（创建渲染器进程-Renderer Thread 渲染页面）</li>
@@ -89,9 +106,75 @@ We"><meta name="keywords" content="Blog"><meta content="width=device-width, init
 </ul>
 </li>
 <li>requestAnimationFrame()可以解决动画和js冲突</li>
-<li>珊格化线程不占用主线程（transform运行在合成器线程和珊格线程）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">st&#x3D;&gt;start: enter url</span><br><span class="line">op1&#x3D;&gt;网络线程(chrome的safeBrowsing站点检测)</span><br><span class="line">op2&#x3D;&gt;通知UI线程（创建渲染进程 Renderer Process）</span><br><span class="line">op3&#x3D;&gt;通过IPC管道通知渲染进程 Renderer Process --main thread[将html js css解析]</span><br><span class="line">op4&#x3D;&gt;解析HTML Tokeniser -&gt; Tree Construction -&gt; DOM Tree</span><br><span class="line">cond&#x3D;&gt;style-css -&gt; Layer Tree</span><br><span class="line">op6&#x3D;&gt;绘制节点记录表 Paint Record</span><br><span class="line">op7&#x3D;&gt;合成器进程通过珊格化将信息渲染到屏幕上</span><br><span class="line">op8&#x3D;&gt;多个珊格图块存储在GPU内--&gt;生成合成器帧通过IPC传给浏览器进程</span><br><span class="line">op9&#x3D;&gt;通知GPU，渲染在屏幕上</span><br><span class="line">op&#x3D;&gt;operation: My Operation</span><br><span class="line">cond&#x3D;&gt;condition: Yes or No?</span><br><span class="line">e&#x3D;&gt;end</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li>珊格化线程不占用主线程（transform运行在合成器线程和珊格线程）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">st&#x3D;&gt;start: enter url</span><br><span class="line">op1&#x3D;&gt;网络线程(chrome的safeBrowsing站点检测)</span><br><span class="line">op2&#x3D;&gt;通知UI线程（创建渲染进程 Renderer Process）</span><br><span class="line">op3&#x3D;&gt;通过IPC管道通知渲染进程 Renderer Process --main thread[将html js css解析]</span><br><span class="line">op4&#x3D;&gt;解析HTML Tokeniser -&gt; Tree Construction -&gt; DOM Tree</span><br><span class="line">cond&#x3D;&gt;style-css -&gt; Layer Tree</span><br><span class="line">op6&#x3D;&gt;绘制节点记录表 Paint Record</span><br><span class="line">op7&#x3D;&gt;合成器进程通过珊格化将信息渲染到屏幕上</span><br><span class="line">op8&#x3D;&gt;多个珊格图块存储在GPU内--&gt;生成合成器帧通过IPC传给浏览器进程</span><br><span class="line">op9&#x3D;&gt;通知GPU，渲染在屏幕上</span><br><span class="line">op&#x3D;&gt;operation: My Operation</span><br><span class="line">cond&#x3D;&gt;condition: Yes or No?</span><br><span class="line">e&#x3D;&gt;end</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+</li>
 </ul>
-</div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2020-08-20</span><i class="fa fa-tag"></i><span class="leancloud_visitors"></span></div></div></div></div><div class="share"><div class="evernote"><a class="fa fa-bookmark" href="" onclick="javascript:join_favorite()" ref="sidebar"></a></div><div class="weibo"><a class="fa fa-weibo" href="javascript:void((function(s,d,e){try{}catch(e){}var f='http://service.weibo.com/share/share.php?',u=d.location.href,p=['url=',e(u),'&amp;title=',e(d.title),'&amp;appkey=2924220432'].join('');function a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=620,height=450,left=',(s.width-620)/2,',top=',(s.height-450)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})(screen,document,encodeURIComponent));"></a></div><div class="twitter"><a class="fa fa-twitter" target="_blank" rel="noopener" href="http://twitter.com/home?status=,https://github.com/leafon/leafon.github.io/2020/08/20/浏览器/,Leaf,浏览器工作原理,;"></a></div></div><div class="pagination"><ul class="clearfix"><li class="next pagbuttons"><a class="btn" role="navigation" href="/2020/08/18/nodejs/" title="NODEJS">下一篇</a></li></ul></div><script src="/js/visitors.js"></script><a id="comments"></a><div id="vcomments" style="margin:0 30px;"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//cdn.jsdelivr.net/gh/xcss/valine@latest/dist/Valine.min.js"></script><script>var valine = new Valine({
+<h4 id="another"><a href="#another" class="headerlink" title="another"></a>another</h4><ul>
+<li>http请求阶段</li>
+<li>http响应阶段</li>
+<li>浏览器渲染阶段<ul>
+<li>url –Request -DNS解析 - TCP三次握手&amp;四次挥手 - HTTPS</li>
+<li>Response响应：HTTP状态码，304缓存，HTTP报文</li>
+<li>浏览器拿到代码-开辟一块栈内存，提供执行环境，同时分配一个线程来解析和执行代码</li>
+<li>栈内存：不断运行（一行一行代码进栈执行-执行完出栈）自上而下完成DOM TREE</li>
+<li>遇到link/script/img，会开辟新的线程去加载资源文件，不影响DOM解析</li>
+<li>DOM TREE完成放入【task queue】任务队列，等待link/script/img ==&gt;Event Loop事件循环（微任务 宏任务）</li>
+<li>css处理完成生成CSSDOM 和DOM TREE 生成 渲染树（Render Tree)</li>
+<li>浏览器渲染完成</li>
+</ul>
+</li>
+<li>机制&amp;原理<ul>
+<li>解析HTML，生成DOM树，解析CSS，生成CSSOM树</li>
+<li>将DOM树和CSSOM树结合，生成渲染树（Render Tree）</li>
+<li>Layout(回流)，根据渲染树，计算在设备视口的位置和大小，这个计算的阶段就是回流</li>
+<li>Painting（重绘)：根据渲染树&amp;回流得到的集合信息，得出节点的绝对像素</li>
+<li>Display将塑像发送给GPU，展示在屏幕上</li>
+</ul>
+</li>
+<li>名词解释<ul>
+<li>进程 Process – 当前应用程序</li>
+<li>线程 Thread – 具体工作的（进程内的子任务）</li>
+<li>栈内存 Stack – 提供环境，运行代码</li>
+<li>IDE 开发工具</li>
+</ul>
+</li>
+<li>DOM的重绘和回流 Repaint &amp; Reflow<ul>
+<li>重绘：元素样式的改变（宽高／大小／位置等不变)<ul>
+<li>outline visibility color backgorund-color</li>
+</ul>
+</li>
+<li>回流：元素大小或位置发生了变化，出发了重新布局，导致渲染树重新计算布局和渲染</li>
+<li>回流一定会出发重绘，重绘不一定会回流</li>
+</ul>
+</li>
+<li>前端性能优化之：避免DOM的回流<ul>
+<li>放弃传统的dom时代，基于vue/react的数据响应模式<ul>
+<li>mvvm/mvc/virtual dom/dom diff</li>
+</ul>
+</li>
+<li>分离读写操作(渲染队列机制)<ul>
+<li>offserTop/offsetLeft/offsetWidth/scrollTop/clientLeft</li>
+</ul>
+</li>
+<li>动画效果应用到position属性（脱离文档流）- 回流小一些</li>
+<li>css3硬件加速（GPU加速）transform开启了硬件加速，规避回流【会占用内存】</li>
+<li>牺牲平滑度换取速度</li>
+<li>避免table布局和使用css的javascript表达式</li>
+</ul>
+</li>
+</ul>
+<h2 id="Render"><a href="#Render" class="headerlink" title="Render"></a>Render</h2><ul>
+<li>渲染引擎<ul>
+<li>HTML解析器</li>
+<li>CSS解析器</li>
+<li>布局Layout模块</li>
+<li>javascript引擎</li>
+<li>绘图模块</li>
+</ul>
+</li>
+</ul>
+</div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2020-08-20</span><i class="fa fa-tag"></i><span class="leancloud_visitors"></span></div></div></div></div><div class="share"><div class="evernote"><a class="fa fa-bookmark" href="" onclick="javascript:join_favorite()" ref="sidebar"></a></div><div class="weibo"><a class="fa fa-weibo" href="javascript:void((function(s,d,e){try{}catch(e){}var f='http://service.weibo.com/share/share.php?',u=d.location.href,p=['url=',e(u),'&amp;title=',e(d.title),'&amp;appkey=2924220432'].join('');function a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=620,height=450,left=',(s.width-620)/2,',top=',(s.height-450)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})(screen,document,encodeURIComponent));"></a></div><div class="twitter"><a class="fa fa-twitter" target="_blank" rel="noopener" href="http://twitter.com/home?status=,https://github.com/leafon/leafon.github.io/2020/08/20/浏览器/,Leaf,浏览器工作原理,;"></a></div></div><div class="pagination"><ul class="clearfix"><li class="pre pagbuttons"><a class="btn" role="navigation" href="/2020/09/03/bee/" title="Bee安装遇到的坑">上一篇</a></li><li class="next pagbuttons"><a class="btn" role="navigation" href="/2020/08/18/nodejs/" title="NODEJS">下一篇</a></li></ul></div><script src="/js/visitors.js"></script><a id="comments"></a><div id="vcomments" style="margin:0 30px;"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//cdn.jsdelivr.net/gh/xcss/valine@latest/dist/Valine.min.js"></script><script>var valine = new Valine({
   el:'#vcomments',
   notify:false || false, 
   verify:false|| false, 
